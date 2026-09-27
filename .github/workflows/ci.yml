@@ -7,7 +7,11 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-dotnet@v5
         with: { dotnet-version: 10.0.x }
-      - run: dotnet run --project tests/SaveEngineTests.csproj --nologo
-      - run: dotnet run --project tests/SteamDiscoveryTests.csproj --nologo
+      - run: dotnet build tests/SaveEngineTests.csproj --nologo
+      - run: dotnet build tests/SteamDiscoveryTests.csproj --nologo
+      - run: dotnet build tests/SaveLocationTests.csproj --nologo
+      - run: dotnet tests/bin/x64/Debug/net10.0-windows/SaveEngineTests.dll
+      - run: dotnet tests/bin/x64/Debug/net10.0-windows/SteamDiscoveryTests.dll
+      - run: dotnet tests/bin/x64/Debug/net10.0-windows/SaveLocationTests.dll
       - run: dotnet build OpenGameSave.csproj --configuration Release --nologo
       - run: pwsh -File tests/Test-Release.ps1
