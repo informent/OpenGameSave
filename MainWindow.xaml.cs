@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Animation;
 using Forms = System.Windows.Forms;
 namespace OpenGameSave;
 public partial class MainWindow : Window
@@ -12,6 +13,8 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        Opacity = 0;
+        Loaded += (_, _) => BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(260)));
         if (SelectedText.Parent is System.Windows.Controls.Panel details)
         {
             gameArtwork = new System.Windows.Controls.Image { Width = 280, Height = 105, Stretch = System.Windows.Media.Stretch.UniformToFill, HorizontalAlignment = System.Windows.HorizontalAlignment.Left, Margin = new Thickness(0, 7, 0, 12) };
@@ -19,7 +22,7 @@ public partial class MainWindow : Window
         }
         if (StatusText.Parent is System.Windows.Controls.Panel statusPanel)
         {
-            restorePlanText = new System.Windows.Controls.TextBlock { Foreground = System.Windows.Media.Brushes.DarkSlateBlue, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 10, 0, 0) };
+            restorePlanText = new System.Windows.Controls.TextBlock { Foreground = (System.Windows.Media.Brush)FindResource("Accent"), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 10, 0, 0) };
             statusPanel.Children.Insert(statusPanel.Children.IndexOf(StatusText) + 1, restorePlanText);
         }
         GameSelector.SelectionChanged += (_, _) => { if (GameSelector.SelectedItem is DetectedGame game) ShowArtwork(game); };
