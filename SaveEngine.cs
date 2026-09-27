@@ -5,6 +5,7 @@ namespace OpenGameSave;
 public sealed record GameProfile(string Name, string? GameFolder, string SaveFolder);
 public sealed record SaveFile(string RelativePath, long Bytes, string Sha256);
 public sealed record SaveSnapshot(string Id, DateTime CreatedAt, string ProfileName, string SaveFolder, IReadOnlyList<SaveFile> Files);
+public sealed record RestorePlan(int TotalFiles, int NewFiles, int ExistingFiles);
 public static class SaveEngine
 {
     public static SaveSnapshot CreateSnapshot(GameProfile profile, string library)
@@ -15,6 +16,12 @@ public static class SaveEngine
     }
     public static bool Verify(string snapshotRoot) { var snapshot = Load(snapshotRoot); return snapshot.Files.All(x => { var path = Path.Combine(snapshotRoot, x.RelativePath); return File.Exists(path) && new FileInfo(path).Length == x.Bytes && Hash(path).Equals(x.Sha256, StringComparison.OrdinalIgnoreCase); }); }
     public static SaveSnapshot Load(string root) => JsonSerializer.Deserialize<SaveSnapshot>(File.ReadAllText(Path.Combine(root, "manifest.json"))) ?? throw new InvalidDataException("Invalid save snapshot manifest.");
+    public static RestorePlan PlanRestore(string snapshotRoot, string target)
+    {
+        if (!Verify(snapshotRoot)) throw new InvalidDataException("Snapshot integrity verification failed.");
+        var snapshot = Load(snapshotRoot); var existing = snapshot.Files.Count(file => File.Exists(Path.Combine(target, file.RelativePath)));
+        return new RestorePlan(snapshot.Files.Count, snapshot.Files.Count - existing, existing);
+    }
     public static int Restore(string snapshotRoot, string target) { if (!Verify(snapshotRoot)) throw new InvalidDataException("Snapshot integrity verification failed."); var snapshot = Load(snapshotRoot); Directory.CreateDirectory(target); foreach (var file in snapshot.Files) { var destination = Path.Combine(target, file.RelativePath); if (File.Exists(destination)) throw new IOException($"Restore stopped because the file already exists: {file.RelativePath}"); Directory.CreateDirectory(Path.GetDirectoryName(destination)!); File.Copy(Path.Combine(snapshotRoot, file.RelativePath), destination); } return snapshot.Files.Count; }
     private static string Hash(string path) { using var stream = File.OpenRead(path); return Convert.ToHexString(SHA256.HashData(stream)); }
 }
