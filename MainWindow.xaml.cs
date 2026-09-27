@@ -26,6 +26,11 @@ public partial class MainWindow : Window
             statusPanel.Children.Insert(statusPanel.Children.IndexOf(StatusText) + 1, restorePlanText);
         }
         GameSelector.SelectionChanged += (_, _) => { if (GameSelector.SelectedItem is DetectedGame game) ShowArtwork(game); };
+        var saved = ProfileStore.Load().LastOrDefault(profile => Directory.Exists(profile.SaveFolder) && Directory.Exists(profile.Library));
+        if (saved is not null)
+        {
+            saveFolder = saved.SaveFolder; library = saved.Library; ProfileText.Text = saved.Name; StatusText.Text = $"Ready · {saved.Name} profile loaded."; Refresh();
+        }
     }
     private void DetectSteam_Click(object sender, RoutedEventArgs e)
     {
