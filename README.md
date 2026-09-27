@@ -32,6 +32,10 @@ dotnet build OpenGameSave.csproj -c Release
 
 GitHub Actions runs these checks on Windows. Release packages are published in GitHub Releases.
 
+## Steam notice
+
+OpenGameSave can read local Steam library manifests to find installed games. It is an independent project and is not affiliated with, endorsed by, or sponsored by Valve Corporation or Steam.
+
 ## License
 
 OpenGameSave is released under the MIT License. See [LICENSE](LICENSE).
