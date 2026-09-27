@@ -10,8 +10,8 @@ jobs:
       - run: dotnet build tests/SaveEngineTests.csproj --nologo
       - run: dotnet build tests/SteamDiscoveryTests.csproj --nologo
       - run: dotnet build tests/SaveLocationTests.csproj --nologo
-      - run: dotnet tests/bin/x64/Debug/net10.0-windows/SaveEngineTests.dll
-      - run: dotnet tests/bin/x64/Debug/net10.0-windows/SteamDiscoveryTests.dll
-      - run: dotnet tests/bin/x64/Debug/net10.0-windows/SaveLocationTests.dll
+      - run: dotnet .\tests\bin\x64\Debug\net10.0-windows\SaveEngineTests.dll
+      - run: dotnet .\tests\bin\x64\Debug\net10.0-windows\SteamDiscoveryTests.dll
+      - run: dotnet .\tests\bin\x64\Debug\net10.0-windows\SaveLocationTests.dll
       - run: dotnet build OpenGameSave.csproj --configuration Release --nologo
       - run: pwsh -File tests/Test-Release.ps1
