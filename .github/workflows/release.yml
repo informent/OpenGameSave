@@ -17,6 +17,7 @@ jobs:
           dotnet run --project tests/SaveEngineTests.csproj --nologo
           dotnet run --project tests/SteamDiscoveryTests.csproj --nologo
           dotnet run --project tests/SaveLocationTests.csproj --nologo
+          dotnet run --project tests/SafetyTests.csproj --nologo
       - name: Publish self-contained EXE
         shell: pwsh
         run: dotnet publish OpenGameSave.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o release\OpenGameSave --nologo
