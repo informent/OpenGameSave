@@ -8,5 +8,6 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with: { dotnet-version: 10.0.x }
       - run: dotnet run --project tests/SaveEngineTests.csproj --nologo
+      - run: dotnet run --project tests/SteamDiscoveryTests.csproj --nologo
       - run: dotnet build OpenGameSave.csproj --configuration Release --nologo
       - run: pwsh -File tests/Test-Release.ps1
