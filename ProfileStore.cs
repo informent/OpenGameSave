@@ -15,4 +15,5 @@ public static class ProfileStore
         var all = Load().Where(x => !x.Name.Equals(profile.Name, StringComparison.OrdinalIgnoreCase)).Append(profile).OrderBy(x => x.Name).ToList();
         Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!); File.WriteAllText(FilePath, JsonSerializer.Serialize(all, new JsonSerializerOptions { WriteIndented = true }));
     }
+    public static SavedProfile? Find(string name) => Load().FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 }

@@ -4,7 +4,10 @@ using System.Text.Json;
 namespace OpenGameSave;
 public sealed record GameProfile(string Name, string? GameFolder, string SaveFolder);
 public sealed record SaveFile(string RelativePath, long Bytes, string Sha256);
-public sealed record SaveSnapshot(string Id, DateTime CreatedAt, string ProfileName, string SaveFolder, IReadOnlyList<SaveFile> Files);
+public sealed record SaveSnapshot(string Id, DateTime CreatedAt, string ProfileName, string SaveFolder, IReadOnlyList<SaveFile> Files)
+{
+    public long TotalBytes => Files.Sum(file => file.Bytes);
+}
 public sealed record RestorePlan(int TotalFiles, int NewFiles, int ExistingFiles);
 public static class SaveEngine
 {
