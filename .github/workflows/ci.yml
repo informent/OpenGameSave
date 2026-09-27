@@ -1,0 +1,12 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with: { dotnet-version: 10.0.x }
+      - run: dotnet run --project tests/SaveEngineTests.csproj --nologo
+      - run: dotnet build OpenGameSave.csproj --configuration Release --nologo
+      - run: pwsh -File tests/Test-Release.ps1

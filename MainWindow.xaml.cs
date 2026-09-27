@@ -1,0 +1,15 @@
+using System.IO;
+using System.Windows;
+using Forms = System.Windows.Forms;
+namespace OpenGameSave;
+public partial class MainWindow : Window
+{
+    private string? saveFolder; private string? library; private SaveSnapshot? selected;
+    public MainWindow() => InitializeComponent();
+    private void ChooseSave_Click(object sender, RoutedEventArgs e) { using var d = new Forms.FolderBrowserDialog { Description = "Choose this game's save folder" }; if (d.ShowDialog() == Forms.DialogResult.OK) { saveFolder = d.SelectedPath; ProfileText.Text = Path.GetFileName(saveFolder); StatusText.Text = "Choose a backup library."; Refresh(); } }
+    private void ChooseLibrary_Click(object sender, RoutedEventArgs e) { using var d = new Forms.FolderBrowserDialog { Description = "Choose where OpenGameSave stores snapshots" }; if (d.ShowDialog() == Forms.DialogResult.OK) { library = d.SelectedPath; StatusText.Text = "Ready to create a snapshot."; Refresh(); } }
+    private void Snapshot_Click(object sender, RoutedEventArgs e) { if (saveFolder is null || library is null) { StatusText.Text = "Choose a save folder and backup library first."; return; } try { selected = SaveEngine.CreateSnapshot(new GameProfile(Path.GetFileName(saveFolder), null, saveFolder), library); StatusText.Text = $"Snapshot verified: {selected.Files.Count:N0} files."; Refresh(); } catch (Exception ex) { StatusText.Text = ex.Message; } }
+    private void Refresh() { if (library is null || saveFolder is null) return; var name = Path.GetFileName(saveFolder); var root = Path.Combine(library, name); if (!Directory.Exists(root)) return; SnapshotList.ItemsSource = Directory.EnumerateDirectories(root).OrderByDescending(x => x).Select(Path.GetFileName).ToArray(); CountText.Text = $"{Directory.EnumerateDirectories(root).Count():N0} snapshots"; }
+    private void Snapshot_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) { if (library is null || SnapshotList.SelectedItem is not string id || saveFolder is null) return; try { selected = SaveEngine.Load(Path.Combine(library, Path.GetFileName(saveFolder), id)); SelectedText.Text = id; StatusText.Text = $"{selected.Files.Count:N0} files · {selected.CreatedAt:g}"; } catch (Exception ex) { StatusText.Text = ex.Message; } }
+    private void Restore_Click(object sender, RoutedEventArgs e) { if (selected is null || library is null || saveFolder is null) { StatusText.Text = "Select a snapshot first."; return; } try { var count = SaveEngine.Restore(Path.Combine(library, selected.ProfileName, selected.Id), saveFolder); StatusText.Text = $"Restored {count:N0} files."; } catch (Exception ex) { StatusText.Text = ex.Message; } }
+}
