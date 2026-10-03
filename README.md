@@ -7,8 +7,8 @@ OpenGameSave is a local-first Windows utility for protecting game saves with cle
 - Detects installed Steam games from Steam's library manifests.
 - Shows selected game artwork when available.
 - Finds common save locations, including Steam userdata and standard Windows folders.
-- Creates timestamped snapshots with SHA-256 hashes and a JSON manifest.
-- Verifies snapshots before restoring and refuses to overwrite files.
+- Creates atomic timestamped snapshots with SHA-256 hashes and a JSON manifest.
+- Validates every path, hash, length, duplicate, and destination collision before restoring the first file.
 - Keeps data on your computer. No account, telemetry, or cloud service is required.
 
 ## Use
