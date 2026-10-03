@@ -21,6 +21,8 @@ OpenGameSave is a local-first Windows utility for protecting game saves with cle
 
 OpenGameSave never silently overwrites files.
 
+Version 1.2 records size and SHA-256 from the snapshot copy itself, refuses linked files and folders during capture, and checks restore roots and ancestors for reparse points before writing.
+
 ## Build and test
 
 ```powershell
