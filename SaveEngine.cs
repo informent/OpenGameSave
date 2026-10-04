@@ -16,8 +16,12 @@ public static class SaveEngine
     public static SaveSnapshot CreateSnapshot(GameProfile profile, string library)
     {
         if (!Directory.Exists(profile.SaveFolder)) throw new DirectoryNotFoundException(profile.SaveFolder);
-        if (string.IsNullOrWhiteSpace(profile.Name) || profile.Name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0) throw new ArgumentException("Profile name contains invalid characters.", nameof(profile));
-        var saveRoot = NormalizeDirectory(profile.SaveFolder); var profileRoot = Path.Combine(Path.GetFullPath(library), profile.Name); Directory.CreateDirectory(profileRoot);
+        if (string.IsNullOrWhiteSpace(profile.Name) || profile.Name is "." or ".." || profile.Name != Path.GetFileName(profile.Name) || profile.Name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0) throw new ArgumentException("Profile name must be a single safe folder name.", nameof(profile));
+        var saveRoot = NormalizeDirectory(profile.SaveFolder);
+        var libraryRoot = Path.GetFullPath(library);
+        var profileRoot = Path.GetFullPath(Path.Combine(libraryRoot, profile.Name));
+        if (IsWithinOrEqual(profileRoot, saveRoot)) throw new InvalidOperationException("The snapshot library cannot be inside the save folder.");
+        Directory.CreateDirectory(profileRoot);
         var id = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff"); var finalRoot = Path.Combine(profileRoot, id);
         while (Directory.Exists(finalRoot)) { id = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff") + "-" + Random.Shared.Next(100, 999); finalRoot = Path.Combine(profileRoot, id); }
         var workingRoot = Path.Combine(profileRoot, $".opengamesave-{Guid.NewGuid():N}.partial"); Directory.CreateDirectory(workingRoot);
@@ -75,6 +79,7 @@ public static class SaveEngine
 
     private static string Resolve(string root, string relative) { EnsureSafeRelativePath(relative); var basePath = NormalizeDirectory(root); var full = Path.GetFullPath(Path.Combine(basePath, relative)); if (!full.StartsWith(basePath, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException("Snapshot contains an unsafe path."); return full; }
     private static string NormalizeDirectory(string path) => Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+    private static bool IsWithinOrEqual(string candidate, string root) => NormalizeDirectory(candidate).StartsWith(NormalizeDirectory(root), StringComparison.OrdinalIgnoreCase);
     private static void EnsureSafeRelativePath(string relative) { if (string.IsNullOrWhiteSpace(relative) || Path.IsPathRooted(relative) || relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Any(x => x is "" or "." or "..")) throw new InvalidDataException("Snapshot contains an unsafe path."); }
     private static IEnumerable<string> EnumerateRegularFiles(string root)
     {

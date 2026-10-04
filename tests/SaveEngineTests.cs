@@ -1,5 +1,8 @@
 using OpenGameSave;
 var root = Path.Combine(Path.GetTempPath(), "opengamesave-" + Guid.NewGuid().ToString("N")); var save = Path.Combine(root, "save"); var library = Path.Combine(root, "library"); Directory.CreateDirectory(save); File.WriteAllText(Path.Combine(save, "slot.dat"), "progress"); Directory.CreateDirectory(Path.Combine(save, "nested")); File.WriteAllText(Path.Combine(save, "nested", "settings.ini"), "quality=high");
+try { SaveEngine.CreateSnapshot(new GameProfile("TestGame", null, save), Path.Combine(save, "backups")); throw new Exception("Nested snapshot library was accepted."); } catch (InvalidOperationException) { }
+if (Directory.Exists(Path.Combine(save, "backups"))) throw new Exception("Rejected nested snapshot library created files under the save folder.");
+try { SaveEngine.CreateSnapshot(new GameProfile("..", null, save), library); throw new Exception("Path traversal profile name was accepted."); } catch (ArgumentException) { }
 var snapshot = SaveEngine.CreateSnapshot(new GameProfile("TestGame", null, save), library); var snapRoot = Path.Combine(library, "TestGame", snapshot.Id); if (!SaveEngine.Verify(snapRoot)) throw new Exception("Fresh snapshot did not verify.");
 var blocked = Path.Combine(root, "blocked"); Directory.CreateDirectory(Path.Combine(blocked, "nested")); File.WriteAllText(Path.Combine(blocked, "nested", "settings.ini"), "existing"); try { SaveEngine.Restore(snapRoot, blocked); throw new Exception("Restore collision was accepted."); } catch (IOException) { }
 if (File.Exists(Path.Combine(blocked, "slot.dat")) || File.ReadAllText(Path.Combine(blocked, "nested", "settings.ini")) != "existing") throw new Exception("Collision preflight left a partial restore.");
