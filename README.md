@@ -23,6 +23,8 @@ OpenGameSave never silently overwrites files.
 
 Version 1.2 records size and SHA-256 from the snapshot copy itself, refuses linked files and folders during capture, and checks restore roots and ancestors for reparse points before writing.
 
+Version 1.3 rejects snapshot libraries that resolve inside a game's save folder before creating output, preventing a backup from recursively including its own working directory. Profile names are restricted to a single safe folder name.
+
 ## Build and test
 
 ```powershell
